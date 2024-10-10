@@ -7,6 +7,11 @@ SELECT * FROM SYS. SYSPROCESSES WHERE SPID>50 AND (LOWER(STATUS) = 'SLEEPING' OR
 -------------------------------------------
 SELECT * FROM SYS.SYSPROCESSES WHERE CMD = 'KILLED/ROLLBACK' 
 
+--To read the audit log file
+-----------------------------------------
+SELECT DISTINCT (ACTION_ID)  FROM SYS.FN_GET_AUDIT_FILE('filename with path', DEFAULT, DEFAULT)
+
+
 --To remove or Drop database.
 --------------------------------------------------------
 USE MASTER
