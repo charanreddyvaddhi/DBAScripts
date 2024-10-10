@@ -1,0 +1,132 @@
+CGYAP62986\sqlprd33 ---- Paranoma server 
+cgydb49963\sql2012 ----- Centralized Server
+
+1)To get the list of Objects.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sp_help
+
+2) Execute this line to check the connection with instances from centralized server for health checks.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sp_helpdb
+
+3)To Get the logins details.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sp_helplogins '<login name>'
+
+4)Execute this line to get the transfer login script  in the instance.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sp_help_revlogin
+
+5)To get the list of connections.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sp_who or sp_who2
+
+6) To remove/Drop database.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+USE master;
+ALTER DATABASE  SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+DROP DATABASE;
+
+7) Excute this script in centralized server to get the last backups(full or diff or tlogs) happenend logs.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SELECT database_name,
+CONVERT( SmallDateTime , MAX(backup_finish_date)) as Last_Backup,
+DATEDIFF(d, MAX(backup_finish_date), Getdate()) as Days_Since_Last
+FROM msdb.dbo.backupset
+WHERE type = 'D'
+--D--full
+--I--diff
+--l--tlog
+GROUP BY database_name
+
+8)Execute the below to the databses and datafiles and logfiles locations.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SELECT d.name DatabaseName, f.name LogicalName,
+f.physical_name AS PhysicalName,
+f.type_desc TypeofFile
+FROM sys.master_files f
+INNER JOIN sys.databases d ON d.database_id = f.database_id
+GO
+
+9)To kill the deadlock session.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+USE master
+GO
+DECLARE @kill varchar(max) = '';
+SELECT @kill = @kill + 'KILL ' + CONVERT(varchar(10), spid) + '; '
+FROM master..sysprocesses 
+WHERE spid > 50 AND dbid = DB_ID('<Your_DB_Name>')
+EXEC(@kill);
+
+GO
+SET DEADLOCK_PRIORITY HIGH
+ALTER DATABASE [<Your_DB_Name>] SET MULTI_USER WITH NO_WAIT
+ALTER DATABASE [<Your_DB_Name>] SET MULTI_USER WITH ROLLBACK IMMEDIATE
+GO
+
+10)To remove databases from replication.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+EXEC sp_removedbreplication '<Database name>'
+
+11) To remove Database from Always On Avalibility Group.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--On Primary server run below
+ALTER AVAILABILITY GROUP <AOAG Group name> REMOVE DATABASE <Database name>;
+
+12)To get/view the current error logs.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sp_readerrorlog 0,1
+
+13)To get/view the archived Error logs.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sp_readerrorlog 1,1
+
+14)To get the process list.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+select * from sys.sysprocesses where spid>50 and (lower(status) = 'sleeping' or lower(status) = 'runnable' or lower(status) = 'background');
+
+15) To map logins when refresh activity is done.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SP_CHANGE_USERS_LOGIN 'report'
+SP_CHANGE_USERS_LOGIN 'update_one', '<login1>', '<login1>'
+
+16) To get the list of Hung sessions in database {client provided lines - verdazo}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+select @@servername as server
+go
+select cmd,spid,
+kpid,login_time,status,hostname,nt_username, loginame, hostprocess,cpu,memusage,physuical_io from sys.sysprocesses 
+where cmd = 'KILLED/ROLLBACK'
+
+17) Configuration management is not opening how to open
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cd %programfiles(x86)%\Microsoft\Microsoft SQL Server\100\Shared folder -- to this location 
+mofcomp "sqlmgmproviderxpsp2up.mof" -- chack the file presence and run the command
+
+18) Use the below to take backup of databases
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+backup database <database name> to disk='<backup path with file name and extension as .bak>'
+
+19) Use the below to know the status of query running
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+select percent_complete from sys.dm_exec_requests where session_id=<session id of restoring query>
+
+20) Use the below to check if any BACKUP or restore happening and its status
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SELECT session_id as SPID, command, a.text AS Query, start_time, percent_complete, dateadd(second,estimated_completion_time/1000, getdate()) as estimated_completion_time 
+FROM sys.dm_exec_requests r CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) a 
+WHERE r.command in ('BACKUP DATABASE','RESTORE DATABASE')
+
+To filter in excel use vlookup(cell1, cell2, 1,0)
+
+SELECT name From sys.databases WHERE database_id > 4 AND group_database_id IS NULL
+
+RESTORE DATABASE db_name WITH RECOVERY 
+
+ALTER DATABASE db_name SET OFFLINE ROLLBACK IMMEDIATE
+
+cluadmin.msc
+
+>>if database status is in recovery pending take it to offline and then online.
+
+--20) test msi file missing in sand box server 
