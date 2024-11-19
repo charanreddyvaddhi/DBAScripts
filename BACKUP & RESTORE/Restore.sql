@@ -1,5 +1,5 @@
---To Restore/Refresh the database use below.
-------------------------------------------------------------------------
+/**TO RESTORE/REFRESH THE DATABASE USE BELOW.**/
+/**------------------------------------------**/
 SP_HELPDB [DB_NAME]
 GO
 RESTORE FILELISTONLY FROM DISK = '\\PATH WHERE THE BACKUP NEED TO BE STORED\DB_NAME_DDMMYYYY_FULL.BAK|.TRN'
@@ -14,23 +14,23 @@ MOVE '<SOURCE FILE LOGICAL NAME FROM BACKUP FILE>' TO '<PATH AND FILE NAME OF DE
 MOVE '<SOURCE FILE LOGICAL NAME FROM BACKUP FILE>' TO '<PATH AND FILE NAME OF DEST>',
 MOVE '<SOURCE FILE LOGICAL NAME FROM BACKUP FILE>' TO '<PATH AND FILE NAME OF DEST>'
 
---To take Backup of a databases to URL use below
----------------------------------------------------------------------------------
--->take the path or URL from the jobs and make it feasible.
+/**TO TAKE BACKUP OF A DATABASES TO URL USE BELOW**/
+/**----------------------------------------------**/
+-->TAKE THE PATH OR URL FROM THE JOBS AND MAKE IT FEASIBLE.
 BACKUP DATABASE <DATABASE_NAME>
 TO URL = 'HTTPS://ABCD.BLOB.CORE.WINDOWS.NET/AZUSQL/AZUSQLPROD_DIFF_20220905_180000.BAK'
 WITH DIFFERENTIAL,
 CREDENTIAL= '<GET THE CREDS FROM SERVER IN CREDENTIAL TAB>'
 
---To Restore a database from URL use below
-----------------------------------------------------------------------
+/**TO RESTORE A DATABASE FROM URL USE BELOW**/
+/**----------------------------------------**/
 SP_HELPDB [DB_NAME]
 GO
 RESTORE FILELISTONLY FROM URL = '\\PATH WHERE THE BACKUP NEED TO BE STORED\DB_NAME_DDMMYYYY_FULL.BAK|.TRN'
 WITH CREDENTIAL= 'XXXXXX'
 
---To Restore a database from URL use below
------------------------------------------------------------------------
+/**TO RESTORE A DATABASE FROM URL USE BELOW**/
+/**----------------------------------------**/
 ALTER DATABASE [<DESTINATION DB NAME>] SET SINGLE_USER WITH ROLLBACK IMMEDIATE
 GO
 USE MASTER
@@ -42,3 +42,5 @@ MOVE '<SOURCE FILE LOGICAL NAME FROM BACKUP FILE>' TO '<PATH AND FILE NAME OF DE
 MOVE '<SOURCE FILE LOGICAL NAME FROM BACKUP FILE>' TO '<PATH AND FILE NAME OF DESTINATION>',
 MOVE '<SOURCE FILE LOGICAL NAME FROM BACKUP FILE>' TO '<PATH AND FILE NAME OF DESTINATION>'
 REPLACE, STATS=1
+
+

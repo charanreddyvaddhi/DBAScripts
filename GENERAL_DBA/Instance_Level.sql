@@ -1,25 +1,27 @@
---To get the up time/startup time of any SQL server
-----------------------------------------------------------------------------------
-SELECT @@SERVERNAME, SQLSERVER_START_TIME FROM SYS.DM_OS_SYS_INFO
+/**To get the up time/startup time of any SQL server**/
+/**-------------------------------------------------**/
+SELECT @@SERVERNAME AS SQL_SERVER_INSTANCE_NAME, SQLSERVER_START_TIME FROM SYS.DM_OS_SYS_INFO
+--OR--
+SELECT @@SERVERNAME AS SQL_SERVER_INSTANCE_NAME, * FROM SYS.DM_SERVER_SERVICES
 
---To remove or Drop database
--------------------------------------------------
+/**To remove or Drop database**/
+/**--------------------------**/
 USE MASTER;
 GO
 ALTER DATABASE <DB_NAME> SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
 GO
 DROP DATABASE <DB_NAME>;
 
---To get the list of all user databases
-----------------------------------------------------------
+/**To get the list of all user databases**/
+/**-------------------------------------**/
 SELECT NAME FROM SYS.DATABASES WHERE DATABASE_ID > 4 AND GROUP_DATABASE_ID IS NULL
 
---To set the databases Offline from online we use this
-------------------------------------------------------------------------------------
+/**To set the databases Offline from online we use this**/
+/**----------------------------------------------------**/
 ALTER DATABASE [DB_NAME] SET OFFLINE WITH ROLLBACK IMMEDIATE
 
---To Get the list of Logins and associated roles to it at server level
----------------------------------------------------------------------------------------------------------
+/**To Get the list of Logins and associated roles to it at server level**/
+/**--------------------------------------------------------------------**/
 SELECT R.NAME AS ROLE, M.NAME AS PRINCIPAL FROM 
 MASTER.SYS. SERVER_ROLE_MEMBERS AS RM 
 INNER JOIN  MASTER.SYS. SERVER_PRINCIPALS R ON R. PRINCIPAL_ID = RM. ROLE_PRINCIPAL_ID AND 
@@ -27,8 +29,8 @@ R. TYPE = 'R'
 INNER JOIN MASTER.SYS. SERVER_PRINCIPALS M ON M. PRINCIPAL_ID = RM. MEMBER_PRINCIPAL_ID 
 ORDER BY M.NAME 
 
---To Extract the associated logins and its permissions in a database
---------------------------------------------------------------------------------------------------------------
+/**To Extract the associated logins and its permissions in a database**/
+/**------------------------------------------------------------------**/
 USE [DB_NAME]
 GO
 SELECT

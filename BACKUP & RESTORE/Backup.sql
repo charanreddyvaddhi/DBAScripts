@@ -1,22 +1,22 @@
---To take Backup of a databases use below
-------------------------------------------------------------------------
+/**TO TAKE BACKUP OF A DATABASES USE BELOW**/
+/**---------------------------------------**/
 BACKUP DATABASE [DB_NAME] TO DISK = '\\PATH WHERE THE BACKUP NEED TO BE STORED\DB_NAME_DDMMYYYY_FULL.BAK|.TRN'
 
---To bring the database Online from restoring state
----------------------------------------------------------------------------------
+/**TO BRING THE DATABASE ONLINE FROM RESTORING STATE**/
+/**-------------------------------------------------**/
 RESTORE DATABASE [DB_NAME]  WITH RECOVERY
 
---Use Below to check if any backup or restore happening and its percentage of complete
-------------------------------------------------------------------------------------------------------------------------------------------------
+/**USE BELOW TO CHECK IF ANY BACKUP OR RESTORE HAPPENING AND ITS PERCENTAGE OF COMPLETE**/
+/**------------------------------------------------------------------------------------**/
 SELECT SESSION_ID AS SPID, COMMAND, A.TEXT AS QUERY, START_TIME, PERCENT_COMPLETE, DATEADD (SECOND, ESTIMATED_COMPLETION_TIME/1000, GETDATE ()) AS ESTIMATED_COMPLETION_TIME
 FROM SYS.DM_EXEC_REQUESTS R CROSS APPLY SYS.DM_EXEC_SQL_TEXT(R.SQL_HANDLE) A
 WHERE R. COMMAND IN ('BACKUP DATABASE','RESTORE DATABASE')
-(Or)
+/**OR**/
 SELECT SESSION_ID, COMMAND, PERCENT_COMPLETE FROM SYS.DM_EXEC_REQUESTS
 WHERE SESSION_ID = <SESSION_ID_WHERE BACKUP/RESTORE IS RUNNING>
 
---To Check When the last backup is happened.
----------------------------------------------------------------------------
+/**TO CHECK WHEN THE LAST BACKUP IS HAPPENED.**/
+/**------------------------------------------**/
 SELECT DATABASE_NAME,
 CONVERT (SMALLDATETIME, MAX (BACKUP_FINISH_DATE)) AS LAST_BACKUP,
 DATEDIFF (D, MAX (BACKUP_FINISH_DATE), GETDATE ()) AS DAYS_SINCE_LAST FROM MSDB.DBO. BACKUPSET
@@ -24,11 +24,9 @@ WHERE TYPE IN ('D','I','L')
 --D--FULL
 --I--DIFF
 --L--TLOG
---change type based on requirement
+--CHANGE TYPE BASED ON REQUIREMENT
 GROUP BY DATABASE_NAME ORDER BY DAYS_SINCE_LAST
-
---(Or) Use below to get the list for only online databases
-
+/**(OR) USE BELOW TO GET THE LIST FOR ONLY ONLINE DATABASES**/
 SELECT DB.NAME,
 CONVERT (SMALLDATETIME, MAX (BKP.BACKUP_FINISH_DATE)) AS LAST_BACKUP,
 DATEDIFF (D, MAX (BKP.BACKUP_FINISH_DATE), GETDATE ()) AS DAYS_SINCE_LAST
@@ -37,11 +35,11 @@ WHERE DB.STATE_DESC = 'ONLINE' AND BKP.TYPE IN ('D','I','L')
 --D--FULL
 --I--DIFF
 --L--TLOG
---change type based on requirement
+--CHANGE TYPE BASED ON REQUIREMENT
 GROUP BY DB.NAME ORDER BY DAYS_SINCE_LAST DESC
 
---To check where the backup file went with what name.
--------------------------------------------------------------------------------------------
+/**TO CHECK WHERE THE BACKUP FILE WENT WITH WHAT NAME.**/
+/**---------------------------------------------------**/
 SELECT TOP 5 A. SERVER_NAME, A. DATABASE_NAME, BACKUP_FINISH_DATE, A. BACKUP_SIZE, CASE A.[TYPE]-- LET'S DECODE THE THREE MAIN TYPES OF BACKUPS HERE
 WHEN 'D' THEN 'FULL'
 WHEN 'I' THEN 'DIFFERENTIAL'
@@ -60,6 +58,8 @@ END
 '\\SERVER\DRIVE\BACKUP_PATH\BACKUP_FILE'
 FROM MSDB.DBO. BACKUPSET A JOIN MSDB.DBO. BACKUPMEDIAFAMILY B
 ON A. MEDIA_SET_ID = B. MEDIA_SET_ID
-WHERE A. DATABASE_NAME LIKE 'REPORTSERVER' --------CHANGE DB NAME
+WHERE A. DATABASE_NAME LIKE 'REPORTSERVER' --CHANGE DB NAME
 AND A. TYPE='D' --- CHANGE THE TYPE OF BACKUP
 ORDER BY A. BACKUP_FINISH_DATE DESC
+
+

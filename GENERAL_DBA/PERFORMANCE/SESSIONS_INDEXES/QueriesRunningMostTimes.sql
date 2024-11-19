@@ -1,0 +1,16 @@
+/**TO GET QUERY/STORED PROCEDURE THAT IS RUNNING MOST NUMBER OF TIMES**/
+/**------------------------------------------------------------------**/
+ SELECT TOP 50
+    USECOUNTS, 
+    CACHEOBJTYPE, 
+    OBJTYPE, 
+    TEXT   
+FROM 
+    SYS.DM_EXEC_CACHED_PLANS   
+        CROSS APPLY SYS.DM_EXEC_SQL_TEXT(PLAN_HANDLE)   
+WHERE
+    USECOUNTS > 1   
+ORDER BY     
+    USECOUNTS DESC;  
+GO 
+
